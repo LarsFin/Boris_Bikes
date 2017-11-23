@@ -1,12 +1,12 @@
 require "./lib/docking_station"
 describe DockingStation do
 let(:bike) { double(:bike)}
+let(:van)  { double(:van) }
 
   before do
-allow(bike).to receive_messages(:working? => true, :working= =>true)
+    allow(bike).to receive_messages(:working? => true, :working= =>true)
     #allow(bike).to receive(:working=)
   end
-
 
   it { is_expected.to respond_to :release_bike }
 
@@ -17,7 +17,7 @@ allow(bike).to receive_messages(:working? => true, :working= =>true)
 
   it { is_expected.to respond_to(:dock).with(1).argument }
 
-  it "bike is docked" do   
+  it "bike is docked" do
     expect(subject.dock(bike)).to eq subject.bikes
   end
 
@@ -27,6 +27,16 @@ allow(bike).to receive_messages(:working? => true, :working= =>true)
   end
 
   it { is_expected.to respond_to :bikes }
+
+  it "Should give broken bikes" do
+    bike2 = double(:bike)
+    allow(bike2).to receive(:working=)
+    allow(bike2).to receive(:working?) {false}
+    subject.dock(bike2)
+    subject.dock(bike)
+    subject.dock(bike2)
+    expect(subject.release_broken_bikes).to eq [bike2, bike2]
+  end
 
   describe '#release_bike' do
     it "should release" do
